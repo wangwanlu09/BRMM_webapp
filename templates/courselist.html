@@ -1,23 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Course List</h2>
-<h3>current competition courses</h3>
-
+<div class="shadow p-3 mb-5 bg-body-tertiary rounded"> <!--Shadow Effects -->
+<div class="d-flex justify-content-between">
+<h2 class="fw-bold fs-3" id="scrollspyHeading2">Course List</h2>
+<h3 class="fw-semibold fs-4 text-end"><small class="text-body-secondary">current competition courses</small></h3>
+</div>
 <!-- code to display list of courses-->
-<table>
+<div class="table-responsive"></div>
+<table class="table align-middle vh-100">
+    <thead class="table-dark">
     <tr>
-        <th>Course</th>
+        <th>Course ID</th>
         <th>Name</th>
-        <th>Map diagram</th>
+        <th>Map Diagram</th>
     </tr>
+    </thead>
+    <tbody>
     {% for course in course_list %}
         <tr>
             {% for field in course %}
-                <td>{{field}}</td>
+            <td>
+                {% if loop.index == 3 %}
+                <a href = "{{ url_for('static', filename=field) }}" target="_blank">
+                    <img src="{{ url_for('static', filename=field) }}" alt="Map Diagram" class="img-thumbnail img-fluid" style="width:200px; height:auto;">
+                </a>     
+                {% else %}
+                    {{field}}
+            </td>
+                {% endif %}
             {% endfor %}
         </tr>
     {% endfor %}
+    </tbody>
 </table>
-
+</div>
 {% endblock %}
