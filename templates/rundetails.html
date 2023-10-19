@@ -4,14 +4,14 @@
 <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
     <h2 class="fw-bold fs-3 mt-5" id="scrollspyHeading3">Run Details</h2>
 
-    <form action="/rundetails#scrollspyHeading3" method="POST" class="my-2">
+    <form action="/rundetails#scrollspyHeading3" method="POST">
+        <div class="input-group">
         <select name="name" id="name" class="form-select" aria-label="Default select example" required>
             <option value="">&lt;Select Name&gt;</option>
             {% for full_name in full_names %}
                 <option value="{{full_name}}">{{full_name}}</option>
             {%  endfor %}
         </select>
-        <div class="mx-auto p-2 d-flex align-items-center justify-content-center">
             <button type="submit" class="btn btn-dark">Show Details</button>
         </div>
     </form>
@@ -65,7 +65,11 @@
                 <td>{{ run[2] }}</td>
                 <td>{{ run[3] }}</td>
                 <td>{{ run[4] }}</td>
-                <td>{{ run[5] }}</td>
+                {% if run[5] != 0 %}
+                    <td>WD</td>
+                {% else %}
+                    <td>{{ run[5] }}</td>
+                {% endif %}
                 <td>{{ run[6] }}</td>
             </tr>
             {% endfor %}

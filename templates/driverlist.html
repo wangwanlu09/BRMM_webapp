@@ -21,7 +21,7 @@
     <tbody>
     <tr>
     {% for driver in driver_list %}
-    <tr {% if driver.3 is not none and (driver.3 >= 12 and driver.3 < 25) %}class="table-warning"{% endif %}>
+    <tr {% if driver.3 is not none and (driver.3 >= 12 and driver.3 <= 25) %}class="table-warning"{% endif %}>
         <td>{{ driver[0] }}</td>
         <!-- Add a link to rundetails with the driver's name as a parameter -->
         <td><a href="{{ url_for('rundetails', name=driver[1]) }}#scrollspyHeading3" class="text-decoration-none text-primary">{{ driver[1] }}</a></td>
