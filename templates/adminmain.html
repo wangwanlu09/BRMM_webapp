@@ -7,7 +7,7 @@
 {% extends "adminnav.html" %}
 {% block content %}
 <div class="shadow p-3 mb-5 bg-body-tertiary rounded pt-5 mt-5"> <!--Shadow Effects -->
-    <h2 class="fw-bold fs-3">Junior List</h2>
+    <h2 class="fw-bold fs-3" id="heading1">Junior List</h2>
     
     <table class="table table-striped table-hover">
         <thead class="table-dark">
@@ -58,7 +58,7 @@
     </div>
 
     {% if search_list %}
-    <table class="table">
+    <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
                 <th>Driver ID</th>

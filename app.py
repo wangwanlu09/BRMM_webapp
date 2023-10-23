@@ -10,7 +10,6 @@ from mysql.connector import FieldType
 import connect
 
 
-
 app = Flask(__name__)
 
 
@@ -270,16 +269,17 @@ def searchbar():
     return []  # Return an empty list if no search criteria is provided
 
 
-# Editor part(admin private)
+
+
+# Edit part
+# Edit runs(admin private)
+# Optional parameter part
 @app.route("/admin/editruns", methods=["GET", "POST"])
 def editruns():
     driverRunlist = [] 
     if request.method == "POST":
         select_full_driver = request.form.get("fdriver")
         select_full_course = request.form.get("fcourse")
-        new_seconds = request.form.get("new_seconds")  
-        new_cones = request.form.get("new_cones") 
-        new_wd = request.form.get("new_wd")
 
         connection = getCursor()
 
@@ -316,19 +316,10 @@ def editruns():
                 ORDER BY driver_id;
             """
             connection.execute(course_query, (select_full_course,))
-
+        else:
+            return render_template ("admineditrun.html", full_drivers=get_full_drivers(), full_courses=get_full_courses())
+        
         driverRunlist = connection.fetchall()
-
-        if driverRunlist:
-                update_query = """
-                    UPDATE driver
-                    INNER JOIN run ON driver.driver_id = run.dr_id
-                    INNER JOIN course ON run.crs_id = course.course_id
-                    SET seconds = %s, cones = %s, wd = %s
-                    WHERE CONCAT(driver_id, ' ', first_name, ' ', surname) = %s AND name = %s;
-                """
-                connection.execute(update_query, (new_seconds, new_cones, new_wd, select_full_driver, select_full_course))
-
 
         return render_template("admineditrun.html", full_drivers=get_full_drivers(), full_courses=get_full_courses(), driver_runlist=driverRunlist)
     return render_template("admineditrun.html", full_drivers=get_full_drivers(), full_courses=get_full_courses())
@@ -345,7 +336,116 @@ def get_full_courses():
     full_courses = [row[0] for row in connection.fetchall()]
     return full_courses
 
-# Editor part
+
+# Edit parameter
+def get_original_values(driver_id, course_name, run_number, cursor):
+    # Execute a query to retrieve the original data
+    query = """
+            SELECT run.seconds, run.cones, run.wd
+            FROM run
+            INNER JOIN course ON run.crs_id = course.course_id
+            WHERE run.dr_id = %s
+            AND course.name = %s
+            AND run.run_num = %s;
+            """
+    cursor.execute(query, (driver_id, course_name, run_number))
+    original_values = cursor.fetchone()
+    print(original_values)
+
+    cursor.fetchall()
+
+   # Convert the query result into a dictionary
+    original_values_dict = {
+        "seconds": original_values[0],
+        "cones": original_values[1],
+        "wd": original_values[2]
+    }
+
+    return original_values_dict
+
+
+def update_db(driver_id, course_name, run_number, update_values, cursor):
+    error_messages = []
+
+    original_values = get_original_values(driver_id, course_name, run_number, cursor)
+
+    if original_values is None:
+        return ["No data found for the specified criteria."]  # 处理找不到数据的情况
+
+    # 初始化变量并设置默认值
+    new_seconds = original_values["seconds"]
+    new_cones = original_values["cones"]
+    new_wd = original_values["wd"]
+
+    # Validate and process seconds
+    if "seconds" in update_values:
+        new_seconds = update_values["seconds"]
+        try:
+            new_seconds = float(new_seconds)
+            if not (0 <= new_seconds <= 1000):
+                error_messages.append("Please enter a number between 0 and 1000 for Seconds.")
+            elif new_seconds == 0:  # Check if input is 0 and set to None
+                new_seconds = None
+        except ValueError:
+            error_messages.append("Please enter a valid number for Seconds.")
+
+    if "cones" in update_values:
+        new_cones = update_values["cones"]
+        try:
+            new_cones = int(new_cones)
+            if not (0 <= new_cones <= 25):
+                error_messages.append("Please enter a number between 0 and 25 for Cones.")
+            elif new_cones == 0:  # Check if input is 0 and set to None
+                new_cones = None
+        except ValueError:
+            error_messages.append("Please enter a valid number for Cones.")
+
+
+    if "wd" in update_values:
+        new_wd = update_values["wd"]
+        if new_wd not in ["1", "0"]:
+            error_messages.append("Please enter '1', or '0' for WD.")
+
+    
+    if error_messages:
+        return error_messages
+
+    
+    update_query = "UPDATE run r " \
+              "INNER JOIN course c ON r.crs_id = c.course_id " \
+              "SET r.seconds = %s, r.cones = %s, r.wd = %s " \
+              "WHERE r.dr_id = %s AND r.run_num = %s AND c.name = %s"
+    cursor.execute(update_query, (new_seconds, new_cones, new_wd, driver_id, run_number, course_name))
+
+    connection.commit()
+    return "Field updated successfully"
+
+
+@app.route("/editrunsform/<driver_id>/<course_name>/<run_number>", methods=["GET", "POST"])
+def editrunsform(driver_id, course_name, run_number):
+    error_messages = [] 
+
+    if request.method == "POST":
+        edit_field = request.form.get("edit_field")
+        new_value = request.form.get("new_value")
+
+        cursor = connection.cursor()
+
+        if new_value is not None and new_value != "":
+            if edit_field in ["seconds", "cones", "wd"]:
+                result = update_db(driver_id, course_name, run_number, {edit_field: new_value}, cursor)
+                if isinstance(result, list):
+                    error_messages = result
+                else:
+                    return "Field updated successfully" 
+                cursor.close()
+
+    return render_template("editrunsform.html", driver_id=driver_id, course_name=course_name, run_number=run_number, error_messages=error_messages)
+
+
+
+                           
+# Edit part
 @app.route("/admin/adddriver")
 def adddriver():
     connection = getCursor()
