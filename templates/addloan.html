@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- borrowers is the variable passed in listing borrowers -->
+<!-- books is the variable passed in listing available books -->
+<!-- loandate is the variable passed in containing the current date -->
+<!-- name for the borrower dropdown borrower should be  borrower -->
+<!-- name for the book dropdown should be book-->
+<!-- name for the hidden field with date should be loandate -->
+<!-- URL for submission (action) of form should be loan/add -->
+
+<form action="loan/add" method="POST">
+    <input type="hidden" value="{{loandate}}" name="loandate"/>
+    <select name="borrower">
+        {% for borrower in borrowers %}
+            <option value="{{borrower[0]}}">{{borrower[1]}} {{borrower[2]}} ({{borrower[0]}})</option>
+        {%  endfor %}
+    </select>
+    <select name="book">
+        {% for book in books %}
+            <option value="{{book[0]}}">{{book[4]}}-{{book[2]}} ({{book[0]}})</option>
+        {%  endfor %}
+    </select>
+    <input type="submit"/>
+</form>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- code in here to display a list of loans -->
+<!-- loanlist is the variable passed in containing list of loans -->
+
+<table>
+    <tr><th>Return</th><th>Loan ID</th><th>Borrower ID</th> <th>First name</th><th>Surname</th><th>Book Copy ID</th><th>Date</th><th>Returned?</th><th>Book ID</th></tr>
+    {% for loan in loanlist %}
+        <tr>
+            <td><a href="/loan/return/{{loan[0]}}">Return</a></td>
+            {% for entry in loan %}
+                <td>{{entry}}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

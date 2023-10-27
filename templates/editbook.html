@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="/updatebook" method="POST">
+    <label for="bookid">Book ID (read only): </label>
+    <input type="text" value="{{bookdetails[0]}}" name="bookid" readonly/>
+    <label for="booktitle">Book Title: </label>
+    <input type="text" value="{{bookdetails[1]}}" name="booktitle"/>
+    <input type="submit"/>
+</form>
+
+{% endblock %}
