@@ -1,0 +1,26 @@
+{% extends "admin.html" %}
+{% block content %}
+    <div class=" container d-flex flex-column justify-content-center align-items-center vh-100"> 
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded pt-5 mt-5"> 
+            <h3 class="fw-bold fs-3" >Admin Login</h3>
+        <form action="/admin" method="POST">
+            <div class="mb-3">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" class="form-control">
+            </div>
+            <br>
+            <div class="mb-3">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" class="form-control">
+            </div>
+            <br>
+            <button type="submit" class="btn btn-dark btn-light">Log in</button>
+        </form>
+        <!--iterates over flashed message-->
+        {% for message in get_flashed_messages() %}
+            <p class="text-danger fs-6">{{ message }}</p>
+        {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

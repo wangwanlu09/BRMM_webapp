@@ -1,0 +1,89 @@
+{% extends "adminnav.html" %}
+{% block content %}
+<div class="shadow p-3 mb-5 bg-body-tertiary rounded pt-5 mt-5"> <!--Shadow Effects -->
+    <h2 class="fw-bold fs-3" id="heading1">Junior List</h2>
+    
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>Driver ID</th>
+            <th>Name</th>
+            <th>Birth Day</th>   
+            <th>Age</th>
+            <th>Caregiver Name</th>
+            <th>Car Model</th>
+            <th>Class</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        {% for junior in junior_list %}
+        <tr>
+            {% if junior[3] is not none and (junior[3] >= 12 and junior[3] <= 25) %}
+                <td>{{ junior[0] }}</td>
+                <td>{{ junior[1] }}</td>
+                <td>{{ junior[2] }}</td>
+                <td>{{ junior[3] }}</td>
+                <td>{{ junior[4] }}</td>
+                <td>{{ junior[5] }}</td>
+                <td>{{ junior[6] }}</td>
+
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <!--Search Part -->
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded pt-5 mt-5">   
+    <h2 class="fw-bold fs-3">Search Name</h2>
+    <form action="/admin/dashboard" method="POST" class="my-2 mb-3">
+        <div class="input-group mb-3">
+        <label for="name">
+            <span class="input-group-text" id="inputGroup-sizing-default">Name</span>
+        </label>
+        <input type="text" id="name" name="name" class="form-control border-secondary" required>
+        <div>
+        <button type="submit" class="btn btn-dark  mr-2">Show Details</button>
+        <button type="submit" class="btn btn-dark"><a href="{{ url_for('admin_dashboard') }}"class="text-decoration-none text-white">Cancel</a></button>
+        </div>
+    </form>
+    </div>
+
+    {% if search_list %}
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Driver ID</th>
+                <th>Name</th>
+                <th>Car Model</th>
+                <th>Course Name</th>
+                <th>Run Nnumber</th>
+                <th>Seconds</th>
+                <th>Cones</th>
+                <th>WD</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for search in search_list %}
+            <tr>
+                <td>{{ search[0] }}</td>
+                <td>{{ search[1] }}</td>
+                <td>{{ search[2] }}</td>
+                <td>{{ search[3] }}</td>
+                <td>{{ search[4] }}</td>
+                <td>{{ search[5] }}</td>
+                <td>{{ search[6] }}</td>
+                {% if search[7] != 0 %}
+                    <td>WD</td>
+                {% else %}
+                    <td>{{ search[7] }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    </div>
+{% endblock %}

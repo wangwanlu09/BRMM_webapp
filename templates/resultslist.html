@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+    <h2 class="fw-bold fs-3" id="scrollspyHeading4">Overall Results</h2>
+    
+    <table class="table table-striped table-hover vh-100">
+        <thead class="table-dark">
+        <tr>
+            <th class="small">Driver ID</th>
+            <th class="small">Name</th>   
+            <th class="small">Car Model</th>
+            <th class="small">Course A</th>
+            <th class="small">Course B</th>
+            <th class="small">Course C</th>
+            <th class="small">Course D</th>
+            <th class="small">Course E</th>
+            <th class="small">Course F</th>
+            <th class="small">Overall Results</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for result in results_list %}
+            <tr>
+                <td class="small">{{ result['Driver ID'] }}</td>
+                <td class="small">{{ result['Name'] }}</td>
+                <td class="small">{{ result['Car Model'] }}</td>
+                <td class="small">{{ result['A'] if 'A' in result else '' }}</td>
+                <td class="small">{{ result['B'] if 'B' in result else '' }}</td>
+                <td class="small">{{ result['C'] if 'C' in result else '' }}</td>
+                <td class="small">{{ result['D'] if 'D' in result else '' }}</td>
+                <td class="small">{{ result['E'] if 'E' in result else '' }}</td>
+                <td class="small">{{ result['F'] if 'F' in result else '' }}</td>
+                <td class="small">{{ result['Overall Results'] }}</td>
+                <td>
+                    {% if loop.index == 1 %}
+                    <i class="bi bi-trophy-fill"></i>
+                    {% elif loop.index <= 5 %}
+                    <i class="bi bi-gift"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>     
+    </table>
+</div>
+{% endblock %}

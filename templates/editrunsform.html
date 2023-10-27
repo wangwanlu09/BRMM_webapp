@@ -1,0 +1,48 @@
+{% extends "admin.html" %}
+{% block content %}
+<form action="{{ url_for('editrunsform', driver_id=driver_id, course_name=course_name, run_number=run_number) }}" method="POST">
+
+        <input type="hidden" name="driver_id" value="{{ driver_id }}">
+        <input type="hidden" name="course_name" value="{{ course_name }}">
+        <input type="hidden" name="run_number" value="{{ run_number }}">
+    
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded pt-5 mt-5">
+            <h2 class="fw-bold fs-3" id="heading2">Edit Information</h2>
+    
+            <div class="input-group mb-3">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="edit_field" value="seconds" {% if selected_field == "seconds" %} checked {% endif %}> Seconds
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="edit_field" value="cones" {% if selected_field == "cones" %} checked {% endif %}> Cones
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="edit_field" value="wd" {% if selected_field == "wd" %} checked {% endif %}> WD
+                    </label>
+                </div>
+                <div class="mt-3 small text-danger mx-1">
+                    * Please select the button before entering each time
+                </div> 
+            </div>
+            
+            <div class="input-group mb-3">
+                <label for="new_value">
+                    <span class="input-group-text" id="inputGroup-sizing-value">New Value:</span>
+                </label>
+                <input type="text" name="new_value" class="form-control border-secondary">
+            </div>
+            
+            <div class="error-message">
+                {% if error_messages %}
+                    <ul class="alert alert-danger">
+                        {% for message in error_messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>                   
+            <button type="submit" class="btn btn-dark">Update Field</button>            
+        </div>
+    </form>   
+{% endblock %}

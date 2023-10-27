@@ -1,0 +1,105 @@
+{% extends "adminnav.html" %}
+{% block content %}
+<div class="shadow p-3 mb-5 bg-body-tertiary rounded pt-5 mt-5"> 
+    <h2 class="fw-bold fs-3" id="heading3">Add Driver</h2>
+
+ <!---select Name--->
+<form action="/admin/adddriver" method="POST">
+    <div class="mb-3">
+        <label for="firstname">First Name:</label>
+        <input type="text" name="firstname" id="firstname" class="form-control" pattern="^[A-Za-z ]{2,50}$" title="Please enter a valid fisrt name"required>
+        <div class="error-message">
+            {% for message in error_messages.firstname %}
+                <p class="alert alert-danger">{{ message }}</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="surname">Surname:</label>
+        <input type="text" name="surname" id="surname" class="form-control" pattern="^[A-Za-z ]{2,50}$" title="Please enter a valid surname" required>
+        <div class="error-message">
+            {% for message in error_messages.surname %}
+                <p class="alert alert-danger">{{ message }}</p>
+            {% endfor %}
+        </div>
+    </div> 
+
+    <!----select age if driver is junior--->
+    <div class="bg-warning p-3 rounded">
+    <!----select age if driver is junior and lower than 16 --->
+    <div class="input-group mb-3">
+        <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-light btn-dark">
+                <input type="checkbox" name="driverType" value="junior1" {% if selected_field == "junior2" %} checked {% endif %}> Junior (Age 12 to 25)
+            </label>
+        </div>        
+        <div class="mt-3 small text-danger mx-1">
+            * If the driver is between 12 and 25 years old, please click the button, select their birthdate.
+        </div>       
+    </div>
+        <div class="mb-3">
+            <label for="birthdate">Date of Birth:</label>
+            <input type="date" name="birthdate" id="birthdate" class="form-control">
+            <div class="error-message">
+                {% for message in error_messages.birthdate %}
+                    <p class="alert alert-danger">{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div> 
+
+        <!----select age if driver is junior and between 17 and 25--->
+        <div class="input-group mb-3 mt-3">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-light btn-dark ">
+                    <input type="checkbox" name="driverType" value="junior2"> Junior (Age 16 or Younger)
+                </label>
+            </div>        
+            <div class="mt-3 small text-danger mx-1">
+                * If the driver's age is Age 16 or Younger, please click the button, select a caregiver for them.
+            </div>       
+        </div>
+        <div class="input-group mb-3 d-flex">
+            <select name="caregiver" id="caregiver" class="form-select" aria-label="Default select example"{% if selected_driver_type == "junior2" %} checked {% endif %}>
+                <option value="">&lt;Select Caregiver&gt;</option>
+                {% for caregiver in caregiver %}
+                <option value="{{ caregiver }}">{{ caregiver }}</option>
+                {% endfor %}
+            </select>
+            <div class="error-message ms-1">
+                {% for message in error_messages.caregiver %}
+                    <p class="alert alert-danger">{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <h3 class="text-secondary fs-5 mt-3">Add Car Information</h3>
+     <!---select car--->
+    <label for="carnum" class="form-label mb-1">Car Number:</label>
+    <div class="input-group mb-3">
+        <select name="carnum" id="carnum" class="form-select" aria-label="Default select example" required>
+            <option value="">&lt;Select Car Number&gt;</option>
+            {% for carnumber in car_number %}
+            <option value="{{ carnumber }}">{{ carnumber }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+
+    <h3 class="text-secondary fs-5 mt-3">Add Course Informations</h3>
+     <!---select course name--->
+        {% for coursename in course_name %}
+        <label class="btn btn-outline-dark mb-2">
+            <input type="checkbox" name="coursename" value="{{ coursename }}" required> {{ coursename }}
+        </label>
+        {% endfor %}
+
+     <!---Submit button--->
+     <div class="mt-3 d-flex justify-content-center mb-3">
+        <input type="submit" class="btn btn-dark" value="Submit New Driver">
+    </div>
+</form>
+</div> 
+{% endblock %}
