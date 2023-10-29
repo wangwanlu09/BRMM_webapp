@@ -1,5 +1,4 @@
 # wangwanlu636S22023webapp
-COMP636 Web App Design - Motorkha
 
 # COMP636 Web App Design - Motorkha Report
 
@@ -57,19 +56,17 @@ In the project, Flask's routes and view functions are used to handle HTTP reques
 
 Here are some of the main routes and functions in the project:
 
-- **Home Route (/):** This route displays the project's homepage and is typically located at the root path.
+- **Home Route (`/`):** The `home()` function handles requests to the root path. It renders the template named "base.html" using the `render_template()` method, displaying the main content of the project's homepage.
 
-- **List Drivers Route (/listdrivers):** This route is used to display a list of drivers. It retrieves data from the database and presents it on the web page.
+- **List Drivers Route (`/listdrivers`):** The `listdrivers()` function processes requests to the `/listdrivers` path. It establishes a connection to the database, executes an SQL query to retrieve driver list data, passes this data to the `driverlist.html` template, and then presents the driver list on the web page.
 
-- **List Courses Route (/listcourses):** This route is used to display a list of courses. It retrieves data from the database and presents it on the web page.
+- **List Courses Route (`/listcourses`):** The `listcourses()` function handles requests to the `/listcourses` path. It retrieves data from the database related to courses and presents the acquired course data on a web page.
 
-- **Run Details Route (/rundetails):** This route is used to view the run details of drivers, including relevant courses and run times. It provides the ability to search for drivers in POST requests.
+- **Overall Results Route (`/listresults`):** The `listresults()` function displays comprehensive driver results by retrieving and formatting data from the database, presenting it in the `resultslist.html` template. This route is used to view the overall results of drivers, including the minimum time for each course and the total time. It extracts data from the database and calculates overall results.
 
-- **Overall Results Route (/listresults):** This route is used to view the overall results of drivers, including the minimum time for each course and the total time. It extracts data from the database and calculates overall results.
+- **Chart Route (`/showgraph`):** The `showgraph()` function is employed by the `/graph` route to gather data from the database and display the top five drivers based on their minimum course times in the `top5graph.html` template.
 
-- **Chart Route (/showgraph):** This route is used to display charts for the top five drivers sorted by the minimum course time.
-
-- **Admin Login Route (/admin):** This route is for administrator login, which can be validated in POST requests.
+- **Admin Login Route (`/admin`):** The `admin()` function operates as the handler for the administrator login, performing credential validation through POST requests, directing to admin dashboard upon successful login, and rendering the "adminLog.html" template for GET requests on the `/admin` route.
 
 - **Admin Dashboard Route (/admin/dashboard):** This route allows administrators to view the list of drivers and perform searches in POST requests.
 
@@ -77,7 +74,7 @@ Here are some of the main routes and functions in the project:
 
 - **Edit Run Form Route (/editrunsform/<driver_id>/<course_name>/<run_number>):** This route is used to edit specific driver run data. It allows updates to fields such as run time (seconds), cone hits (cones), and wrong directions (wd) for the selected run. These updates can be made by submitting the form.
 
-- **Admin Add Driver Route (/admin/adddriver):** This route is responsible for adding new drivers into the system. 
+- **Admin Add Driver Route (`/admin/adddriver`):** `The adddriver()` function, handled by the `/admin/adddriver` route, manages the addition of new drivers. It validates input fields such as names, birthdates, caregiver information, and car selection. Upon receiving a POST request, it retrieves car details, course information, and associated run numbers from the database. Validating the input, it redirects to the adddriverresult route, passing the verified input. For GET requests, the function renders the `adminadddriver.html` template, displaying form fields and any related error messages. Auxiliary functions like get_car_number(), get_course_name(), and get_caregiver() provide necessary database information to facilitate the driver addition process.
 
 ## Assumptions and design decisions
 
