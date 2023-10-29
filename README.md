@@ -68,13 +68,17 @@ Here are some of the main routes and functions in the project:
 
 - **Admin Login Route (`/admin`):** The `admin()` function operates as the handler for the administrator login, performing credential validation through POST requests, directing to admin dashboard upon successful login, and rendering the "adminLog.html" template for GET requests on the `/admin` route.
 
-- **Admin Dashboard Route (/admin/dashboard):** This route allows administrators to view the list of drivers and perform searches in POST requests.
+**Admin Dashboard Route (`/admin/dashboard`):** The `admin_dashboard()` function handles both GET and POST requests at the `/admin/dashboard` path. It displays a list of junior drivers and facilitates driver searches. On POST request, it retrieves and presents search results based on provided driver names (surname or first name). The rendered `adminmain.html` template showcases the driver list.
 
-- **Admin Edit Runs Route (/admin/editruns):** This route is for administrators to edit driver run data, with the option to filter by driver and/or course in POST requests.
+- **Admin Edit Runs Route (`/admin/editruns`):** The `editruns()` function, forming the backbone of the `/admin/editruns route`, facilitates administrators in editing driver run data. It offers filtering by driver and/or course in POST requests. The route enables data retrieval from the database for viewing and editing and presents an interactive interface for selecting drivers and courses via the `admineditrun.html` page. The helper functions get_full_drivers() and get_full_courses() retrieve complete lists of driver and course names, while additional functions like update_db(), get_original_values(), and editruns() are responsible for managing database updates, filtering criteria, and run data modifications.
 
-- **Edit Run Form Route (/editrunsform/<driver_id>/<course_name>/<run_number>):** This route is used to edit specific driver run data. It allows updates to fields such as run time (seconds), cone hits (cones), and wrong directions (wd) for the selected run. These updates can be made by submitting the form.
+- **Edit Run Form Route (/editrunsform/<driver_id>/<course_name>/<run_number>):** The `editrunsform()` function manages the adjustment of individual driver run details via the `/editrunsform/<driver_id>/<course_name>/<run_number>` route, allowing modifications to run time, cone hits, and wrong directions. It provides error messaging within the "editrunsform.html" template and supports data submission for updates.
 
 - **Admin Add Driver Route (`/admin/adddriver`):** `The adddriver()` function, handled by the `/admin/adddriver` route, manages the addition of new drivers. It validates input fields such as names, birthdates, caregiver information, and car selection. Upon receiving a POST request, it retrieves car details, course information, and associated run numbers from the database. Validating the input, it redirects to the adddriverresult route, passing the verified input. For GET requests, the function renders the `adminadddriver.html` template, displaying form fields and any related error messages. Auxiliary functions like get_car_number(), get_course_name(), and get_caregiver() provide necessary database information to facilitate the driver addition process.
+
+- **Admin Add Driver Result Route (`/admin/adddriver/result`):** This route is responsible for processing data related to adding new drivers, handling both GET and POST requests. The function `adddriverresult()` retrieves and processes the driver's personal details, car information, and course data from the request's arguments. It then performs validations such as confirming the car number's existence. Upon ensuring the data's validity, it inserts the driver's information into the database, incorporating the driver, run, and course tables. If any data is missing or if inconsistencies are found, it provides appropriate feedback or error messages.
+
+- **Admin Add Success Route (`/admin/add/success`):** The `addsuccess()` function serves as the route for displaying a success page. On GET requests, it renders the "successpage.html" template, providing a success message to the user.
 
 ## Assumptions and design decisions
 
@@ -90,13 +94,17 @@ Here are some of the main routes and functions in the project:
 
 - **Data Integrity:** I assume that the data in the database remains complete, without duplicate records or inconsistent data. For instance, we might assume that course names in the `course` table are unique.
 
+- **Database Security Measures:** It is assumed that the database includes security measures such as encrypted passwords, safeguarding sensitive user and administrator credentials.
+
+This addition emphasizes the consideration of security measures within the database, highlighting the inclusion of encrypted passwords to secure sensitive user and administrator information.
+
 ### Design Decisions
 
 - **Route Design:** I chose to use the Flask framework to create multiple routes, with each route corresponding to different application functionalities. For example, we created routes for displaying driver lists, course lists, editing driver run data, and more. This decision helps us clearly partition the functionality of the application and makes the code structure easier to maintain.
 
 - **Templates and View Functions:** I use the Jinja2 template engine to embed dynamic data into HTML pages. This decision allows us to generate page content in a more flexible way and adheres to the DRY (Don't Repeat Yourself) principle. View functions are responsible for retrieving and processing data, then passing it to the appropriate templates for rendering.
 
-- **HTTP Request Methods:** We use HTTP's GET and POST methods for requesting and sending data. GET is used for retrieving data from the server, while POST is used for submitting form data to the server. In our design, GET requests are typically used for data retrieval (e.g., viewing driver lists), while POST requests are used for submitting form data (e.g., editing driver run data). This decision helps separate data retrieval from data submission.
+- **HTTP Request Methods:** We use HTTP's GET and POST methods for requesting and sending data. GET is used for retrieving data from the server, while POST is used for submitting form data to the server. In our design, GET requests are typically used for data retrieval (e.g., viewing driver lists), while POST requests are used for submitting form data (e.g., editing driver run data add driver). This decision helps separate data retrieval from data submission.
 
 - **Database Access:** I chose to use a MySQL database for data storage and retrieval. In our design, we need to execute database queries carefully to ensure data consistency and security. This decision provides scalability and advantages in data management.
 
@@ -109,6 +117,24 @@ Here are some of the main routes and functions in the project:
 These are some of the key assumptions and design decisions I considered during the design and development of the application. These decisions play a critical role in ensuring the proper functioning of the application, data integrity, and user satisfaction.
 
 ## About Database
+
+### What SQL statement creates the car table and defines its three fields/columns? 
+
+```sql
+CREATE TABLE IF NOT EXISTS car (
+    car_num INT PRIMARY KEY NOT NULL,
+    model VARCHAR(20) NOT NULL,
+    drive_class VARCHAR(3) NOT NULL
+);
+```
+
+- **The provided SQL code creates a table named `car` with three fields/columns**:
+- **`car_num`: as an integer type acting as the primary key.**
+- **`model` as a variable character (string) type with a maximum length of 20 characters.**
+- **`drive_class` as a variable character (string) type with a maximum length of 3 characters.**
+
+This markdown will correctly format the SQL code as an answer within a larger document or presentation. Adjust the formatting as needed to match your document structure.
+
 
 ### Suppose logins were implemented. Why is it important for drivers and the club admin to access different routes? 
 
