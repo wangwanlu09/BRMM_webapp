@@ -1,6 +1,6 @@
 # wangwanlu636S22023webapp
 
-# COMP636 Web App Design - Motorkha Report
+# COMP636 Web App Design - Motorkhana Report
 
 ## Project Overview
 
