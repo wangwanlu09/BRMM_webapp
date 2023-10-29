@@ -68,11 +68,11 @@ Here are some of the main routes and functions in the project:
 
 - **Admin Login Route (`/admin`):** The `admin()` function operates as the handler for the administrator login, performing credential validation through POST requests, directing to admin dashboard upon successful login, and rendering the "adminLog.html" template for GET requests on the `/admin` route.
 
-**Admin Dashboard Route (`/admin/dashboard`):** The `admin_dashboard()` function handles both GET and POST requests at the `/admin/dashboard` path. It displays a list of junior drivers and facilitates driver searches. On POST request, it retrieves and presents search results based on provided driver names (surname or first name). The rendered `adminmain.html` template showcases the driver list.
+- **Admin Dashboard Route (`/admin/dashboard`):** The `admin_dashboard()` function handles both GET and POST requests at the `/admin/dashboard` path. It displays a list of junior drivers and facilitates driver searches. On POST request, it retrieves and presents search results based on provided driver names (surname or first name). The rendered `adminmain.html` template showcases the driver list.
 
 - **Admin Edit Runs Route (`/admin/editruns`):** The `editruns()` function, forming the backbone of the `/admin/editruns route`, facilitates administrators in editing driver run data. It offers filtering by driver and/or course in POST requests. The route enables data retrieval from the database for viewing and editing and presents an interactive interface for selecting drivers and courses via the `admineditrun.html` page. The helper functions get_full_drivers() and get_full_courses() retrieve complete lists of driver and course names, while additional functions like update_db(), get_original_values(), and editruns() are responsible for managing database updates, filtering criteria, and run data modifications.
 
-- **Edit Run Form Route (/editrunsform/<driver_id>/<course_name>/<run_number>):** The `editrunsform()` function manages the adjustment of individual driver run details via the `/editrunsform/<driver_id>/<course_name>/<run_number>` route, allowing modifications to run time, cone hits, and wrong directions. It provides error messaging within the "editrunsform.html" template and supports data submission for updates.
+- **Edit Run Form Route (`/editrunsform/<driver_id>/<course_name>/<run_number>`):** The `editrunsform()` function manages the adjustment of individual driver run details via the `/editrunsform/<driver_id>/<course_name>/<run_number>` route, allowing modifications to run time, cone hits, and wrong directions. It provides error messaging within the "editrunsform.html" template and supports data submission for updates.
 
 - **Admin Add Driver Route (`/admin/adddriver`):** `The adddriver()` function, handled by the `/admin/adddriver` route, manages the addition of new drivers. It validates input fields such as names, birthdates, caregiver information, and car selection. Upon receiving a POST request, it retrieves car details, course information, and associated run numbers from the database. Validating the input, it redirects to the adddriverresult route, passing the verified input. For GET requests, the function renders the `adminadddriver.html` template, displaying form fields and any related error messages. Auxiliary functions like get_car_number(), get_course_name(), and get_caregiver() provide necessary database information to facilitate the driver addition process.
 
@@ -95,8 +95,6 @@ Here are some of the main routes and functions in the project:
 - **Data Integrity:** I assume that the data in the database remains complete, without duplicate records or inconsistent data. For instance, we might assume that course names in the `course` table are unique.
 
 - **Database Security Measures:** It is assumed that the database includes security measures such as encrypted passwords, safeguarding sensitive user and administrator credentials.
-
-This addition emphasizes the consideration of security measures within the database, highlighting the inclusion of encrypted passwords to secure sensitive user and administrator information.
 
 ### Design Decisions
 
@@ -129,25 +127,77 @@ CREATE TABLE IF NOT EXISTS car (
 ```
 
 - **The provided SQL code creates a table named `car` with three fields/columns**:
-- **`car_num`: as an integer type acting as the primary key.**
-- **`model` as a variable character (string) type with a maximum length of 20 characters.**
-- **`drive_class` as a variable character (string) type with a maximum length of 3 characters.**
+`car_num`: as an integer type acting as the primary key.
+`model` as a variable character (string) type with a maximum length of 20 characters.
+`drive_class` as a variable character (string) type with a maximum length of 3 characters.
 
-This markdown will correctly format the SQL code as an answer within a larger document or presentation. Adjust the formatting as needed to match your document structure.
+### Which line of SQL code sets up the relationship between the car and driver tables?
 
+The relationship between the `car` and `driver` tables is established in the `CREATE TABLE IF NOT EXISTS driver` block using the following lines:
 
-### Suppose logins were implemented. Why is it important for drivers and the club admin to access different routes? 
+```sql
+car INT NOT NULL,
+FOREIGN KEY (car) REFERENCES car(car_num)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+```
 
-Introducing separate routes and access control for drivers and club administrators is essential.
+The line `car INT NOT NULL` in the `CREATE TABLE IF NOT EXISTS driver` block sets up the column in the `driver` table to hold the foreign key referencing the `car_num` column in the `car` table. The `FOREIGN KEY (car) REFERENCES car(car_num)` defines this relationship, ensuring that the `car` field in the `driver` table references the primary key `car_num` in the `car` table. This relationship is set to trigger cascading updates and deletions.
 
-- **User Roles and Route Separation**: In my code, by creating distinct routes and view functions, you ensure that drivers and administrators can only access pages relevant to their roles.   For instance, you can set up a `/driver` route for drivers to view their own run data, while an `/admin` route is created for administrators to perform management tasks. This ensures data privacy and data integrity.
+When modifications are made to the referenced `car_num` within the car table, the effects will cascade to the car field in the driver table due to the `ON UPDATE CASCADE` option. Similarly, if a linked `car_num` record in the car table is deleted, the corresponding entry in the driver table's car field will also be removed following the `ON DELETE CASCADE` option.
 
-- **Data Segregation**: You can ensure that users with different roles only have access to data they are authorized to view. For example, drivers can only view and edit their own run data, while administrators can view and manage data for all drivers. This is achieved through your database queries and route design.
+### Which 3 lines of SQL code insert the Mini and GR Yaris details into the car table?
 
-- **Functionality Separation**: By assigning different functionalities to different user roles, you prevent confusion and system misuse. For example, driver routes might include viewing run data and updating personal information, while admin routes might include adding new drivers and editing run data.
+Certainly, the three lines of SQL code that insert the 'Mini' and 'GR Yaris' details into the `car` table are:
 
-- **Login Verification**: You can validate user identity and roles during login and use decorators or conditional statements in your routes to check if a user has permission to access specific pages. This ensures that only authorized users can access relevant pages.
+```sql
+INSERT INTO car VALUES
+(11,'Mini','FWD'),
+(17,'GR Yaris','4WD'),
+(18,'MX-5','RWD'),
+(20,'Camaro','RWD'),
+(22,'MX-5','RWD'),
+(31,'Charade','FWD'),
+(36,'Swift','FWD'),
+(44,'BRZ','RWD');
+```
 
-- **Data Security**: Ensure that only administrators can access sensitive management functionalities like editing run data to protect data security. By restricting access to these routes, you can reduce the risk of data leaks.
+The provided SQL code includes multiple insertions; however, specifically, the lines involving the 'Mini' and 'GR Yaris' details correspond to the first two entries within the `INSERT INTO car VALUES` statement. Adjust the SQL file for proper data insertion.
 
-Combining these principles with your code helps ensure data privacy and security while providing role-specific functionalities to meet the needs of different user roles. This makes your application more controlled and secure in terms of user access and data management.
+### How to set a default value of 'RWD' for the driver_class field in the SQL？
+
+To set a default value of 'RWD' for the `driver_class` field in the `car` table, a modification in the table definition by adding a `DEFAULT` constraint would be necessary. Below is the altered SQL code to include the default value:
+
+```sql
+CREATE TABLE IF NOT EXISTS car (
+    car_num INT PRIMARY KEY NOT NULL,
+    model VARCHAR(20) NOT NULL,
+    drive_class VARCHAR(3) NOT NULL
+);
+```
+
+```sql
+CREATE TABLE IF NOT EXISTS car (
+    car_num INT PRIMARY KEY NOT NULL,
+    model VARCHAR(20) NOT NULL,
+    drive_class VARCHAR(3) NOT NULL DEFAULT 'RWD'
+);
+```
+
+By including the `DEFAULT 'RWD'` in the `drive_class` field's definition, any new records inserted into the `car` table that don't explicitly specify a `driver_class` value will default to 'RWD'. This setting only applies to subsequent insertions and does not impact existing data.
+
+### Why Is It Important for Drivers and Club Admins to Access Different Routes in an Implemented Login System?
+
+Implementing separate routes and access control for drivers and club administrators is pivotal for a well-structured and secure application:
+
+- **User Roles and Route Segmentation:** By creating dedicated routes for different user roles, such as `/driver` for drivers and `/admin` for club administrators, you ensure that each user role accesses only the pages relevant to their specific functions. This segregation maintains data privacy and integrity.
+
+- **Data Segregation:** Segregating data ensures that users have access only to the data they are authorized to view or manage. For instance, drivers can only view and manage their own run data, while administrators can access and modify data for all drivers. Properly designed database queries and route assignments ensure this segregation.
+
+- **Functionality Separation:** Distinct routes for each user role prevent confusion and misuse. For example, driver routes might allow viewing run data and personal information updates, while admin routes might facilitate functions like adding new drivers or editing run data.
+
+- **Login Verification:** Validating user identities and roles during login is crucial. Using decorators or conditional statements in routes to verify user permissions guarantees that only authorized users can access specific pages based on their roles.
+
+- **Data Security:** Limiting access to sensitive functionalities, such as editing run data, exclusively to administrators ensures higher data security. By controlling access to these routes, the risk of data breaches or unauthorized access is significantly reduced.
+
+By integrating these principles into the code, the application maintains robust data privacy and security, providing role-specific functionalities to meet the unique needs of different user roles. This approach ensures controlled, secure access and effective data management within the application.
