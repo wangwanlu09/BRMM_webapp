@@ -236,8 +236,8 @@ def admin():
 
 
 
-#Admin private (adminmain)
-#Display junior list & search list
+# Admin private (adminmain)
+# Display junior list & search list
 @app.route("/admin/dashboard", methods=["GET", "POST"])
 def admin_dashboard():
     if request.method == "POST":
@@ -245,17 +245,40 @@ def admin_dashboard():
     else:
         search_list = None
 
+    # Junior list
     connection = getCursor()
-    connection.execute("SELECT d.driver_id, CONCAT(d.first_name, ' ', d.surname, CASE WHEN age >= 12 AND age <= 25 THEN ' (J)' ELSE '' END) as full_name, d.date_of_birth, d.age, d.caregiver, c.model, c.drive_class FROM driver as d INNER JOIN car as c ON d.car = c.car_num ORDER BY d.age DESC, d.surname;")
+    connection.execute("""
+        SELECT d.driver_id, 
+            CONCAT(d.first_name, ' ', d.surname, CASE WHEN age >= 12 AND age <= 25 THEN ' (J)' ELSE '' END) as full_name, 
+            d.date_of_birth, 
+            d.age, 
+            d.caregiver, 
+            c.model, 
+            c.drive_class 
+        FROM driver as d 
+        INNER JOIN car as c ON d.car = c.car_num 
+        WHERE age >= 12 AND age <= 25 
+        ORDER BY d.age DESC, d.surname;
+    """)
     juniorList = connection.fetchall()
+
     driver_id_to_name = {}
-    for junior in juniorList:
-        driver_id_to_name[junior[0]] = junior[1] 
-    # Modify juniorList to update caregiver names
+
+    # Get caregivers' names
+    caregivers = [junior[4] for junior in juniorList if junior[4] is not None]
+    caregivers = list(set(caregivers))  # Ensure only unique caregiver IDs
+
+    # Retrieve names of caregivers
+    for caregiver in caregivers:
+        connection.execute("SELECT driver_id, CONCAT(first_name, ' ', surname) as full_name FROM driver WHERE driver_id = %s", (caregiver,))
+        result = connection.fetchone()
+        if result:
+            driver_id_to_name[result[0]] = result[1]
+
+    # Update caregiver names in juniorList
     for i, junior in enumerate(juniorList):
-        if junior[4] is not None:  # If there is a caregiver
-            if junior[4] in driver_id_to_name:  # Check if caregiver ID is in the dictionary
-                juniorList[i] = junior[:4] + (driver_id_to_name[junior[4]],) + junior[5:]
+        if junior[4] is not None and junior[4] in driver_id_to_name:
+            juniorList[i] = junior[:4] + (driver_id_to_name[junior[4]],) + junior[5:]
     return render_template("adminmain.html", junior_list=juniorList, search_list=search_list)
 
 def searchbar():
@@ -449,7 +472,7 @@ def editrunsform(driver_id, course_name, run_number):
                 if isinstance(result, list):
                     error_messages = result
                 else:
-                    return "Field updated successfully" 
+                    return redirect(url_for('addsuccess'))
                 cursor.close()
 
     return render_template("editrunsform.html", driver_id=driver_id, course_name=course_name, run_number=run_number, error_messages=error_messages)
@@ -479,12 +502,14 @@ def adddriver():
         Select_caregiver = request.form.get("caregiver")
         Select_car_number = request.form.get("carnum")
         select_course_names = request.form.getlist("coursename")
-        #course_info_list = request.args.getlist("course_info_list")
 
-         # Ensure these fields are set to the default values if not provided in the form
+        # Ensure these fields are set to the default values if not provided in the form
         seconds = request.form.get("seconds", 0)
         cones = request.form.get("cones")
         wd = request.form.get("wd", 0)
+
+        input_firstname = input_firstname.capitalize() if input_firstname else None
+        input_surname = input_surname.capitalize() if input_surname else None
 
         # Validate names
         is_valid, name_error = is_valid_name(input_firstname)
@@ -499,7 +524,7 @@ def adddriver():
         if selected_driver_type == "junior1":
             # Junior (Age 12 to 25) option is selected
             if not Select_birthdate:
-                return "Birthdate is required for this option" 
+                return "Birthdate is required for this option. Please return and make your selection again" 
                 # error_messages["birthdate"].append("Birthdate is required for this option.")
             if not Select_caregiver:
                 Select_caregiver = None
@@ -507,7 +532,7 @@ def adddriver():
             if not Select_caregiver:
                 error_messages["caregiver"].append("Caregiver is required for this option.")
             if not Select_birthdate:
-                return "Birthdate is required for this option" 
+                return "Birthdate is required for this option. Please return and make your selection again" 
                 # error_messages["birthdate"].append("Birthdate is required for this option.")
         else:
             # Neither option is selected, so set both to None
@@ -522,11 +547,14 @@ def adddriver():
             current_date = datetime.now()
         # Ensure the selected birthdate is not in the future (i.e., after the current date)
             if selected_birthdate > current_date:
-                return "Birthdate cannot be in the future."
+                return "Birthdate cannot be in the future. Please return and make your selection again"
                 # error_messages["birthdate"].append("Birthdate cannot be in the future.")
             else:
                 # Calculate the age
                 age = current_date.year - selected_birthdate.year - ((current_date.month, current_date.day) < (selected_birthdate.month, selected_birthdate.day))
+            
+            if age < 12 or age > 25:
+                return "Age must be between 12 and 25 years old. Please return and make your selection again."
         else:
             age = None
 
@@ -581,14 +609,13 @@ def adddriver():
                         """
                         connection.execute(course_query, (course_id,))
                         results = connection.fetchall()
-
+                        
                         run_nums = [result[0] for result in results]
 
-                        seconds = [0] * len(course_ids)
-                        wd = [0] * len(course_ids)
-                        cones = [0] * len(course_ids)
-
-                
+                        seconds = [0] * len(run_nums)
+                        wd = [0] * len(run_nums)
+                        cones = [0] * len(run_nums)
+            
         return redirect(url_for('adddriverresult', input_firstname=input_firstname,input_surname=input_surname, 
                         Select_birthdate=Select_birthdate, age=age, Select_caregiver=Select_caregiver, 
                         Select_car_number=Select_car_number, model=model,drive_class=drive_class, 
@@ -642,7 +669,6 @@ def adddriverresult():
     seconds = request.args.getlist('seconds')
     cones = request.args.getlist('cones')
     wd = request.args.getlist('wd')
-
     
     cursor = connection.cursor()
     if car != car_num:
@@ -655,22 +681,37 @@ def adddriverresult():
     """
     values_driver = (first_name, surname, date_of_birth, age, caregiver, car_num)
     cursor.execute(insert_driver_query, values_driver)
-    new_driver_id = cursor.lastrowid
+    new_driver_id = cursor.lastrowid # key increment
 
+    for i in range(len(crs_id)):
+        for j in range(len(run_num)):
+            insert_run_query = """
+            INSERT INTO run (dr_id, crs_id, run_num, seconds, cones, wd)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE run_num = VALUES(run_num), seconds = VALUES(seconds), cones = VALUES(cones), wd = VALUES(wd);
+            """
+            values_run = (new_driver_id, crs_id[i], run_num[j], seconds[j], cones[j], wd[j])
+            cursor.execute(insert_run_query, values_run)
 
-    run_num_count = 0
-    for j in range(len(course_id)):
-        insert_run_query = """
-        INSERT INTO run (dr_id, crs_id, run_num,seconds,cones,wd)
-        VALUES (%s, %s, %s, %s, %s, %s);
-        """
-        values_run = (new_driver_id, crs_id[j], run_num[j], seconds[j], cones[j], wd[j])
-        cursor.execute(insert_run_query, values_run)
-        run_num_count += 1
+            # Update seconds
+            update_seconds_query = """
+            UPDATE run
+            SET seconds = NULL
+            WHERE seconds = 0 AND dr_id = %s AND crs_id = %s AND run_num = %s;
+            """
+            cursor.execute(update_seconds_query, (new_driver_id, crs_id[i], run_num[j]))
+
+            # Update cones
+            update_cones_query = """
+            UPDATE run
+            SET cones = NULL
+            WHERE cones = 0 AND dr_id = %s AND crs_id = %s AND run_num = %s;
+            """
+            cursor.execute(update_cones_query, (new_driver_id, crs_id[i], run_num[j]))
+
 
     connection.commit()          
     cursor.close()
-
 
     return render_template('adddriverresult.html', input_firstname=first_name, input_surname=surname, 
                            Select_birthdate=date_of_birth, age=age, Select_caregiver=caregiver, 
